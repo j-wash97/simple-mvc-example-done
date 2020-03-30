@@ -3,6 +3,7 @@ const models = require('../models');
 
 // get the Cat model
 const Cat = models.Cat.CatModel;
+const Dog = models.Dog.DogModel;
 
 // default fake data so that we have something to work with until we make a real Cat
 const defaultData = {
@@ -114,6 +115,16 @@ const hostPage3 = (req, res) => {
   res.render('page3');
 };
 
+const hostPage4 = (req, res) => {
+  Dog.find((err, docs) => {
+    if(err) {
+      return res.status(500).json({ err });
+    }
+
+    return res.render('page4', { dogs: docs });
+  }).lean();
+};
+
 // function to handle get request to send the name
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
@@ -168,6 +179,26 @@ const setName = (req, res) => {
   return res;
 };
 
+const setDog = (req, res) => {
+  if(!req.body.name || !req.body.breed || !req.body.age) {
+    return res.status(400).json({ error: 'missing parameter(s)' });
+  }
+
+  const savePromise = new Dog({
+    name: req.body.name,
+    breed: req.body.breed,
+    age: req.body.age
+  }).save();
+
+  savePromise.then(() => res.json({
+    name: req.body.name,
+    breed: req.body.breed,
+    age: req.body.age
+  }));
+
+  savePromise.catch(err => res.status(500).json({ err }));
+};
+
 
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
@@ -205,6 +236,37 @@ const searchName = (req, res) => {
 
     // if a match, send the match back
     return res.json({ name: doc.name, beds: doc.bedsOwned });
+  });
+};
+
+const searchDog = (req, res) => {
+  if(!req.query.name) {
+    return res.status(400).json({ error: 'Name is required to perform a search' });
+  }
+
+  return Dog.findByName(req.query.name, (err, doc) => {
+    // errs, handle them
+    if (err) {
+      return res.status(500).json({ err }); // if error, return it
+    }
+
+    // if no matches, let them know
+    // (does not necessarily have to be an error since technically it worked correctly)
+    if (!doc) {
+      return res.json({ error: 'No dogs found' });
+    }
+
+    doc.age++;
+
+    const savePromise = doc.save();
+
+    savePromise.then(() => res.json({
+      name: doc.name,
+      breed: doc.breed,
+      age: doc.age
+    }));
+
+    savePromise.catch(err => res.status(500).json({ err }));
   });
 };
 
@@ -255,10 +317,13 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
   getName,
   setName,
+  setDog,
   updateLast,
   searchName,
+  searchDog,
   notFound,
 };
