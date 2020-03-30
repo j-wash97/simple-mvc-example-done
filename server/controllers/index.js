@@ -106,18 +106,18 @@ const hostPage2 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const hostPage3 = (req, res) => {
-    // res.render takes a name of a page to render.
-    // These must be in the folder you specified as views in your main app.js file
-    // Additionally, you don't need .jade because you registered the file type
-    // in the app.js as jade. Calling res.render('index')
-    // actually calls index.jade. A second parameter of JSON can be passed
-    // into the jade to be used as variables with #{varName}
+  // res.render takes a name of a page to render.
+  // These must be in the folder you specified as views in your main app.js file
+  // Additionally, you don't need .jade because you registered the file type
+  // in the app.js as jade. Calling res.render('index')
+  // actually calls index.jade. A second parameter of JSON can be passed
+  // into the jade to be used as variables with #{varName}
   res.render('page3');
 };
 
 const hostPage4 = (req, res) => {
   Dog.find((err, docs) => {
-    if(err) {
+    if (err) {
       return res.status(500).json({ err });
     }
 
@@ -180,23 +180,23 @@ const setName = (req, res) => {
 };
 
 const setDog = (req, res) => {
-  if(!req.body.name || !req.body.breed || !req.body.age) {
+  if (!req.body.name || !req.body.breed || !req.body.age) {
     return res.status(400).json({ error: 'missing parameter(s)' });
   }
 
   const savePromise = new Dog({
     name: req.body.name,
     breed: req.body.breed,
-    age: req.body.age
+    age: req.body.age,
   }).save();
 
   savePromise.then(() => res.json({
     name: req.body.name,
     breed: req.body.breed,
-    age: req.body.age
+    age: req.body.age,
   }));
 
-  savePromise.catch(err => res.status(500).json({ err }));
+  savePromise.catch((err) => res.status(500).json({ err }));
 };
 
 
@@ -240,7 +240,7 @@ const searchName = (req, res) => {
 };
 
 const searchDog = (req, res) => {
-  if(!req.query.name) {
+  if (!req.query.name) {
     return res.status(400).json({ error: 'Name is required to perform a search' });
   }
 
@@ -263,10 +263,10 @@ const searchDog = (req, res) => {
     savePromise.then(() => res.json({
       name: doc.name,
       breed: doc.breed,
-      age: doc.age
+      age: doc.age,
     }));
 
-    savePromise.catch(err => res.status(500).json({ err }));
+    savePromise.catch((error) => res.status(500).json({ error }));
   });
 };
 
